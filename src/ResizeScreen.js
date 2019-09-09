@@ -14,7 +14,7 @@ export default class ResizeScreen extends React.Component {
 
   canvasRef = React.createRef();
   firstFrame = null;
-  // We stare these as instance properties rather than on state because we
+  // We start these as instance properties rather than on state because we
   // don't need React to re-render at all, all redering is done by us on the canvas
   isDragging = false;
   imgXOffset = 0;
