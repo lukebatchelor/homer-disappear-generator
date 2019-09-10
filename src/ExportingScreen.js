@@ -9,7 +9,7 @@ export default class ExportingScreen extends React.Component {
 
   state = {
     completionPercentage: 0,
-    completedImage: null,
+    base64encodedImg: null,
     imgSizeMb: 0
   };
 
@@ -38,29 +38,52 @@ export default class ExportingScreen extends React.Component {
       gifController.move_to(i);
       ctx.drawImage(uploadedImg, 0, 0);
       ctx.drawImage(gifCanvas, 0, 0);
-      gif.addFrameImageData(
-        ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height)
-      );
+      gif.addFrameImageData(ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height));
     }
 
-    gif.getBase64GIF(image => {
-      const size = image.length / 1000000; // size of image in mb
-      this.setState({ completedImage: image, imgSizeMb: size.toFixed(2) });
+    gif.getBase64GIF(base64encodedImg => {
+      // need to also get image as a blob for use in downloading (and giving us an accurate size)
+      // Cool hack to convert b64string to blob!
+      fetch(base64encodedImg)
+        .then(res => res.blob())
+        .then(imgBlob => {
+          const imgSizeMb = (imgBlob.size / 1000000).toFixed(2);
+          this.setState({ base64encodedImg, imgSizeMb, imgBlob });
+        });
     });
   }
 
+  onDownloadClicked = () => {
+    const { imgBlob } = this.state;
+    // to download, we'll create a fake anchor element and click it
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.href = window.URL.createObjectURL(imgBlob);
+    a.setAttribute('download', 'homer.gif');
+
+    a.click();
+
+    // make sure we clean up object urls (they're expensive)
+    window.URL.revokeObjectURL(a.href);
+    document.body.removeChild(a);
+  };
+
   render() {
-    const { completedImage, imgSizeMb } = this.state;
+    const { base64encodedImg, imgSizeMb } = this.state;
     return (
       <div>
-        {!completedImage && (
-          <p>Exporting: {this.state.completionPercentage}%</p>
+        {!base64encodedImg && <p>Exporting: {this.state.completionPercentage}%</p>}
+        {base64encodedImg && (
+          <div>
+            <p>Done!</p>
+            <img src={base64encodedImg} alt="Disappearing Homer"></img>
+            <p>Size: {imgSizeMb}Mb</p>
+            <button type="button" className="upload-button" onClick={this.onDownloadClicked}>
+              Download!
+            </button>
+          </div>
         )}
-        {completedImage && <p>Done!</p>}
-        {completedImage && (
-          <img src={completedImage} alt="Disappearing Homer"></img>
-        )}
-        {completedImage && <p>Size: {imgSizeMb}Mb</p>}
       </div>
     );
   }

@@ -75,9 +75,7 @@ export default class App extends React.Component {
           <h1>Gif Generator</h1>
         </div>
         <div className="content">
-          {curScreen === 'UPLOAD' && (
-            <UploadScreen onImageUploaded={this.onImageUploaded} />
-          )}
+          {curScreen === 'UPLOAD' && <UploadScreen onImageUploaded={this.onImageUploaded} />}
           {curScreen === 'RESIZE' && (
             <ResizeScreen
               uploadedImg={uploadedImg}
@@ -86,10 +84,7 @@ export default class App extends React.Component {
             />
           )}
           {curScreen === 'EXPORTING' && (
-            <ExportingScreen
-              uploadedImg={uploadedImg}
-              gifController={homerGifController}
-            />
+            <ExportingScreen uploadedImg={uploadedImg} gifController={homerGifController} />
           )}
         </div>
       </div>
