@@ -33,7 +33,9 @@ export default class App extends React.Component {
     imgXOffset: 0,
     imgYOffset: 0,
     canvasWidth: 0,
-    canvasHeight: 0
+    canvasHeight: 0,
+    homerHeight: 0,
+    homerWidth: 0
   };
 
   firstFrameFromGif = null;
@@ -46,31 +48,33 @@ export default class App extends React.Component {
   };
 
   componentDidMount() {
-    // USE THIS TO SKIP UPLOADING IMAGE DURING TESTING
-    if (SKIP_UPLOAD_STEP) {
-      const img = new Image();
-      img.onload = () => {
-        this.setState({
-          curScreen: 'RESIZE',
-          uploadedImg: img
-        });
-      };
-      img.src = '/screenshot1.png';
-    }
-
-    loadGifFromUrl('/homer.gif', gifController => {
+    loadGifFromUrl('/homer-crop.gif', gifController => {
       this.firstFrameFromGif = getFirstFrameFromGif(gifController);
       this.setState({ homerGifController: gifController });
+
+      // USE THIS TO SKIP UPLOADING IMAGE DURING TESTING
+      if (SKIP_UPLOAD_STEP) {
+        const img = new Image();
+        img.onload = () => {
+          this.setState({
+            curScreen: 'RESIZE',
+            uploadedImg: img
+          });
+        };
+        img.src = '/pizza.jpg';
+      }
     });
   }
 
-  onResizeReady = ({ imgXOffset, imgYOffset, canvasWidth, canvasHeight }) => {
+  onResizeReady = ({ imgXOffset, imgYOffset, canvasWidth, canvasHeight, homerHeight, homerWidth }) => {
     this.setState({
       curScreen: 'EXPORTING',
       imgXOffset,
       imgYOffset,
       canvasWidth,
-      canvasHeight
+      canvasHeight,
+      homerHeight,
+      homerWidth
     });
   };
 
@@ -82,7 +86,9 @@ export default class App extends React.Component {
       imgXOffset,
       imgYOffset,
       canvasWidth,
-      canvasHeight
+      canvasHeight,
+      homerHeight,
+      homerWidth
     } = this.state;
     const { firstFrameFromGif } = this;
 
@@ -93,9 +99,7 @@ export default class App extends React.Component {
           <h1>Gif Generator</h1>
         </div>
         <div className="content">
-          {curScreen === 'UPLOAD' && (
-            <UploadScreen onImageUploaded={this.onImageUploaded} />
-          )}
+          {curScreen === 'UPLOAD' && <UploadScreen onImageUploaded={this.onImageUploaded} />}
           {curScreen === 'RESIZE' && (
             <ResizeScreen
               uploadedImg={uploadedImg}
@@ -111,6 +115,8 @@ export default class App extends React.Component {
               imgYOffset={imgYOffset}
               canvasWidth={canvasWidth}
               canvasHeight={canvasHeight}
+              homerHeight={homerHeight}
+              homerWidth={homerWidth}
             />
           )}
         </div>

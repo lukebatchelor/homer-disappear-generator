@@ -2,22 +2,46 @@ import React from 'react';
 
 const MAX_IMAGE_DIMENSION = 500;
 
+// We need to set a max size of the outputted image for a couple of reasons:
+// 1. It makes moving homer on the image super annoying because of the sheer
+//    number of pixels (especially is screen shots from high dpi screens)
+// 2. Outputting takes ages (and results in a massive gif)
+// 3. Scaling homer to _fit_ on a massive image makes him look terrible
+// So we set a max size and scale the src image based on that
 function getCalculatedImageHeight(uploadedImg) {
   const { height, width } = uploadedImg;
   if (height < MAX_IMAGE_DIMENSION && width < MAX_IMAGE_DIMENSION) {
     return { imgHeight: height, imgWidth: width };
   }
 
-  const xScaling =
-    width > MAX_IMAGE_DIMENSION ? MAX_IMAGE_DIMENSION / width : 1;
-  const yScaling =
-    height > MAX_IMAGE_DIMENSION ? MAX_IMAGE_DIMENSION / height : 1;
+  const xScaling = width > MAX_IMAGE_DIMENSION ? MAX_IMAGE_DIMENSION / width : 1;
+  const yScaling = height > MAX_IMAGE_DIMENSION ? MAX_IMAGE_DIMENSION / height : 1;
   // We want to scale both dimensions evenly, so take the biggest scaling factor
   const maxScaling = Math.min(xScaling, yScaling);
   const newWidth = Math.round(width * maxScaling);
   const newHeight = Math.round(height * maxScaling);
 
   return { imgWidth: newWidth, imgHeight: newHeight };
+}
+
+// Since we'll be scaling homer somewhere between 0 and 100% of the size of the
+// input image, we'll need to set his default size based on that. We'll use a
+// similar approach to the one above, by finding which dimensions are too large
+// and scaling the whole image based on the larger one
+function getHomerSize({ imgHeight, imgWidth, firstFrameFromGif }) {
+  const { height, width } = firstFrameFromGif;
+  if (height < imgHeight && width < imgWidth) {
+    return { homerHeight: height, homerWidth: width };
+  }
+
+  const xScaling = width > imgWidth ? imgWidth / width : 1;
+  const yScaling = height > imgHeight ? imgHeight / height : 1;
+  // We want to scale both dimensions evenly, so take the biggest scaling factor
+  const maxScaling = Math.min(xScaling, yScaling);
+  const newWidth = Math.round(width * maxScaling);
+  const newHeight = Math.round(height * maxScaling);
+
+  return { homerWidth: newWidth, homerHeight: newHeight };
 }
 
 export default class ResizeScreen extends React.Component {
@@ -46,11 +70,14 @@ export default class ResizeScreen extends React.Component {
   zoomLevel = 1;
   dragX = 0;
   dragY = 0;
+  homerHeight = 0;
+  homerWidth = 0;
 
   componentDidMount() {
-    const { uploadedImg } = this.props;
+    const { uploadedImg, firstFrameFromGif } = this.props;
     const canvas = this.canvasRef.current;
     const { imgHeight, imgWidth } = getCalculatedImageHeight(uploadedImg);
+    const { homerHeight, homerWidth } = getHomerSize({ imgHeight, imgWidth, firstFrameFromGif });
 
     canvas.addEventListener('mousedown', this.startDrag);
     canvas.addEventListener('mousemove', this.updateDrag);
@@ -59,6 +86,9 @@ export default class ResizeScreen extends React.Component {
     canvas.addEventListener('touchstart', this.startDrag);
     canvas.addEventListener('touchend', this.endDrag);
     canvas.addEventListener('touchmove', this.updateDrag);
+
+    this.homerWidth = homerWidth;
+    this.homerHeight = homerHeight;
 
     this.setState({
       canvasHeight: imgHeight,
@@ -85,13 +115,14 @@ export default class ResizeScreen extends React.Component {
   updateCanvas = homer => {
     const { uploadedImg, firstFrameFromGif } = this.props;
     const { canvasHeight, canvasWidth } = this.state;
+    const { homerHeight, homerWidth, zoomLevel } = this;
 
     const canvas = this.canvasRef.current;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(uploadedImg, 0, 0, canvasWidth, canvasHeight);
     if (firstFrameFromGif) {
       const { imgXOffset, imgYOffset } = this;
-      ctx.drawImage(firstFrameFromGif, imgXOffset, imgYOffset);
+      ctx.drawImage(firstFrameFromGif, imgXOffset, imgYOffset, homerWidth * zoomLevel, homerHeight * zoomLevel);
     }
   };
 
@@ -130,17 +161,20 @@ export default class ResizeScreen extends React.Component {
   };
 
   onZoomChange = e => {
-    console.log(this.zoomLevel, e.target.value);
+    this.zoomLevel = parseFloat(e.target.value);
+    this.updateCanvas();
   };
 
   onReadyClicked = () => {
-    const { imgXOffset, imgYOffset } = this;
+    const { imgXOffset, imgYOffset, homerHeight, homerWidth, zoomLevel } = this;
     const { canvasWidth, canvasHeight } = this.state;
     this.props.onResizeReady({
       imgXOffset,
       imgYOffset,
       canvasHeight,
-      canvasWidth
+      canvasWidth,
+      homerHeight: homerHeight * zoomLevel,
+      homerWidth: homerWidth * zoomLevel
     });
   };
 
@@ -148,27 +182,11 @@ export default class ResizeScreen extends React.Component {
     const { canvasHeight, canvasWidth } = this.state;
     return (
       <div>
-        <canvas
-          ref={this.canvasRef}
-          height={canvasHeight}
-          width={canvasWidth}
-          className="resizeCanvas"
-        ></canvas>
+        <canvas ref={this.canvasRef} height={canvasHeight} width={canvasWidth} className="resizeCanvas"></canvas>
         <p>Zoom Level</p>
-        <input
-          type="range"
-          onChange={this.onZoomChange}
-          min="0"
-          max="1"
-          defaultValue={this.zoomLevel}
-          step="0.01"
-        />
+        <input type="range" onChange={this.onZoomChange} min="0" max="2" defaultValue={this.zoomLevel} step="0.01" />
         <div style={{ marginTop: '30px' }}>
-          <button
-            type="button"
-            className="upload-button"
-            onClick={this.onReadyClicked}
-          >
+          <button type="button" className="upload-button" onClick={this.onReadyClicked}>
             Ready!
           </button>
         </div>

@@ -8,7 +8,9 @@ export default class ExportingScreen extends React.Component {
     imgXOffset: 0,
     imgYOffset: 0,
     canvasWidth: 0,
-    canvasHeight: 0
+    canvasHeight: 0,
+    homerHeight: 0,
+    homerWidth: 0
   };
 
   state = {
@@ -24,7 +26,9 @@ export default class ExportingScreen extends React.Component {
       imgXOffset,
       imgYOffset,
       canvasWidth,
-      canvasHeight
+      canvasHeight,
+      homerHeight,
+      homerWidth
     } = this.props;
     const numFrames = gifController.get_length();
     const gifCanvas = gifController.get_canvas();
@@ -48,7 +52,7 @@ export default class ExportingScreen extends React.Component {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       gifController.move_to(i);
       ctx.drawImage(uploadedImg, 0, 0, canvasWidth, canvasHeight);
-      ctx.drawImage(gifCanvas, imgXOffset, imgYOffset);
+      ctx.drawImage(gifCanvas, imgXOffset, imgYOffset, homerWidth, homerHeight);
       gif.addFrameImageData(ctx.getImageData(0, 0, canvasWidth, canvasHeight));
     }
 
@@ -84,19 +88,13 @@ export default class ExportingScreen extends React.Component {
     const { base64encodedImg, imgSizeMb } = this.state;
     return (
       <div>
-        {!base64encodedImg && (
-          <p>Exporting: {this.state.completionPercentage}%</p>
-        )}
+        {!base64encodedImg && <p>Exporting: {this.state.completionPercentage}%</p>}
         {base64encodedImg && (
           <div>
             <p>Done!</p>
-            <img src={base64encodedImg} alt="Disappearing Homer"></img>
+            <img src={base64encodedImg} alt="Disappearing Homer" style={{ width: '80%' }}></img>
             <p>Size: {imgSizeMb}Mb</p>
-            <button
-              type="button"
-              className="upload-button"
-              onClick={this.onDownloadClicked}
-            >
+            <button type="button" className="upload-button" onClick={this.onDownloadClicked}>
               Download!
             </button>
           </div>
