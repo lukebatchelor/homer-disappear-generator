@@ -6,7 +6,9 @@ export default class ExportingScreen extends React.Component {
     uploadedImg: null,
     gifController: null,
     imgXOffset: 0,
-    imgYOffset: 0
+    imgYOffset: 0,
+    canvasWidth: 0,
+    canvasHeight: 0
   };
 
   state = {
@@ -16,13 +18,20 @@ export default class ExportingScreen extends React.Component {
   };
 
   componentDidMount() {
-    const { uploadedImg, gifController, imgXOffset, imgYOffset } = this.props;
+    const {
+      uploadedImg,
+      gifController,
+      imgXOffset,
+      imgYOffset,
+      canvasWidth,
+      canvasHeight
+    } = this.props;
     const numFrames = gifController.get_length();
     const gifCanvas = gifController.get_canvas();
     const gif = new gifExporter({
       workerPath: 'js/Animated_GIF.worker.min.js'
     });
-    gif.setSize(uploadedImg.width, uploadedImg.height);
+    gif.setSize(canvasWidth, canvasHeight);
     gif.setDelay(100);
     gifController.pause();
     gif.onRenderProgress(progress => {
@@ -32,17 +41,15 @@ export default class ExportingScreen extends React.Component {
 
     const tempCanvas = document.createElement('canvas');
     const ctx = tempCanvas.getContext('2d');
-    tempCanvas.height = uploadedImg.height;
-    tempCanvas.width = uploadedImg.width;
+    tempCanvas.height = canvasHeight;
+    tempCanvas.width = canvasWidth;
 
     for (let i = 0; i < numFrames; i++) {
-      ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       gifController.move_to(i);
-      ctx.drawImage(uploadedImg, 0, 0);
+      ctx.drawImage(uploadedImg, 0, 0, canvasWidth, canvasHeight);
       ctx.drawImage(gifCanvas, imgXOffset, imgYOffset);
-      gif.addFrameImageData(
-        ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height)
-      );
+      gif.addFrameImageData(ctx.getImageData(0, 0, canvasWidth, canvasHeight));
     }
 
     gif.getBase64GIF(base64encodedImg => {

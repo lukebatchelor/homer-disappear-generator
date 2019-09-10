@@ -31,7 +31,9 @@ export default class App extends React.Component {
     uploadedImg: null,
     homerGifController: null,
     imgXOffset: 0,
-    imgYOffset: 0
+    imgYOffset: 0,
+    canvasWidth: 0,
+    canvasHeight: 0
   };
 
   firstFrameFromGif = null;
@@ -53,7 +55,7 @@ export default class App extends React.Component {
           uploadedImg: img
         });
       };
-      img.src = '/pizza.jpg';
+      img.src = '/screenshot1.png';
     }
 
     loadGifFromUrl('/homer.gif', gifController => {
@@ -62,8 +64,14 @@ export default class App extends React.Component {
     });
   }
 
-  onResizeReady = ({ imgXOffset, imgYOffset }) => {
-    this.setState({ curScreen: 'EXPORTING', imgXOffset, imgYOffset });
+  onResizeReady = ({ imgXOffset, imgYOffset, canvasWidth, canvasHeight }) => {
+    this.setState({
+      curScreen: 'EXPORTING',
+      imgXOffset,
+      imgYOffset,
+      canvasWidth,
+      canvasHeight
+    });
   };
 
   render() {
@@ -72,7 +80,9 @@ export default class App extends React.Component {
       uploadedImg,
       homerGifController,
       imgXOffset,
-      imgYOffset
+      imgYOffset,
+      canvasWidth,
+      canvasHeight
     } = this.state;
     const { firstFrameFromGif } = this;
 
@@ -99,6 +109,8 @@ export default class App extends React.Component {
               gifController={homerGifController}
               imgXOffset={imgXOffset}
               imgYOffset={imgYOffset}
+              canvasWidth={canvasWidth}
+              canvasHeight={canvasHeight}
             />
           )}
         </div>

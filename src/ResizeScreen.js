@@ -1,8 +1,24 @@
 import React from 'react';
-import { MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT } from './constants';
 
-// We need to
-function getOutputImageSize({ uploadedImg, firstFrameFromGif }) {}
+const MAX_IMAGE_DIMENSION = 500;
+
+function getCalculatedImageHeight(uploadedImg) {
+  const { height, width } = uploadedImg;
+  if (height < MAX_IMAGE_DIMENSION && width < MAX_IMAGE_DIMENSION) {
+    return { imgHeight: height, imgWidth: width };
+  }
+
+  const xScaling =
+    width > MAX_IMAGE_DIMENSION ? MAX_IMAGE_DIMENSION / width : 1;
+  const yScaling =
+    height > MAX_IMAGE_DIMENSION ? MAX_IMAGE_DIMENSION / height : 1;
+  // We want to scale both dimensions evenly, so take the biggest scaling factor
+  const maxScaling = Math.min(xScaling, yScaling);
+  const newWidth = Math.round(width * maxScaling);
+  const newHeight = Math.round(height * maxScaling);
+
+  return { imgWidth: newWidth, imgHeight: newHeight };
+}
 
 export default class ResizeScreen extends React.Component {
   static defaultProps = {
@@ -34,8 +50,7 @@ export default class ResizeScreen extends React.Component {
   componentDidMount() {
     const { uploadedImg } = this.props;
     const canvas = this.canvasRef.current;
-    const { height: imgHeight, width: imgWidth } = uploadedImg;
-    const { height: canvasHeight, width: canvasWidth } = canvas;
+    const { imgHeight, imgWidth } = getCalculatedImageHeight(uploadedImg);
 
     canvas.addEventListener('mousedown', this.startDrag);
     canvas.addEventListener('mousemove', this.updateDrag);
@@ -46,8 +61,8 @@ export default class ResizeScreen extends React.Component {
     canvas.addEventListener('touchmove', this.updateDrag);
 
     this.setState({
-      canvasHeight: uploadedImg.height,
-      canvasWidth: uploadedImg.width
+      canvasHeight: imgHeight,
+      canvasWidth: imgWidth
     });
   }
 
@@ -62,17 +77,18 @@ export default class ResizeScreen extends React.Component {
     canvas.removeEventListener('touchmove', this.updateDrag);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate() {
     // if rendering causes the canvas to be remounted, we need to redraw it
     this.updateCanvas();
   }
 
   updateCanvas = homer => {
     const { uploadedImg, firstFrameFromGif } = this.props;
+    const { canvasHeight, canvasWidth } = this.state;
 
     const canvas = this.canvasRef.current;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(uploadedImg, 0, 0);
+    ctx.drawImage(uploadedImg, 0, 0, canvasWidth, canvasHeight);
     if (firstFrameFromGif) {
       const { imgXOffset, imgYOffset } = this;
       ctx.drawImage(firstFrameFromGif, imgXOffset, imgYOffset);
@@ -119,7 +135,13 @@ export default class ResizeScreen extends React.Component {
 
   onReadyClicked = () => {
     const { imgXOffset, imgYOffset } = this;
-    this.props.onResizeReady({ imgXOffset, imgYOffset });
+    const { canvasWidth, canvasHeight } = this.state;
+    this.props.onResizeReady({
+      imgXOffset,
+      imgYOffset,
+      canvasHeight,
+      canvasWidth
+    });
   };
 
   render() {
