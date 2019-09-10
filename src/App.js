@@ -48,6 +48,9 @@ export default class App extends React.Component {
   };
 
   componentDidMount() {
+    // Hack to hide mobile adress bars
+    window.scrollTo(0, 1);
+
     loadGifFromUrl('/homer-crop.gif', gifController => {
       this.firstFrameFromGif = getFirstFrameFromGif(gifController);
       this.setState({ homerGifController: gifController });
