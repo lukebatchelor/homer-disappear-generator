@@ -94,10 +94,12 @@ export default class App extends React.Component {
 
     return (
       <div className="app">
-        <div className="title">
-          <h1>Disappearing Homer</h1>
-          <h1>Gif Generator</h1>
-        </div>
+        {curScreen === 'UPLOAD' && (
+          <div className="title">
+            <h1>Disappearing Homer</h1>
+            <h1>Gif Generator</h1>
+          </div>
+        )}
         <div className="content">
           {curScreen === 'UPLOAD' && <UploadScreen onImageUploaded={this.onImageUploaded} />}
           {curScreen === 'RESIZE' && (

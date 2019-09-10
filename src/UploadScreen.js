@@ -37,13 +37,10 @@ export default class UploadScreen extends React.Component {
   render() {
     return (
       <div>
-        <img src="/homer.gif" alt="Homer disappearing"></img>
+        <p>Create a gif of Homer disappearing into things... Because why not?</p>
+        <img src="/homer-crop.gif" alt="Homer disappearing" style={{ maxHeight: '40vh' }}></img>
         <p>Upload a background image to begin!</p>
-        <button
-          type="button"
-          className="upload-button"
-          onClick={this.uploadClicked}
-        >
+        <button type="button" className="upload-button" onClick={this.uploadClicked}>
           Upload
         </button>
         <input

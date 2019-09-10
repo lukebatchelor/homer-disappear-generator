@@ -182,6 +182,7 @@ export default class ResizeScreen extends React.Component {
     const { canvasHeight, canvasWidth } = this.state;
     return (
       <div>
+        <p>Great! Now drag Homer wherever you want</p>
         <canvas ref={this.canvasRef} height={canvasHeight} width={canvasWidth} className="resizeCanvas"></canvas>
         <p>Zoom Level</p>
         <input type="range" onChange={this.onZoomChange} min="0" max="2" defaultValue={this.zoomLevel} step="0.01" />
