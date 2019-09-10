@@ -8,7 +8,6 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  /* border: 10px solid green; */
   text-align: center;
 }
 
@@ -20,13 +19,11 @@
 }
 
 .title {
-  /* border: 1px solid red; */
   flex: 0 1 auto;
 }
 
 .content {
   flex: 1 0 auto;
-  /* border: 1px solid green; */
 }
 
 .hidden-homer {
@@ -47,8 +44,6 @@
 
 .resizeCanvas {
   width: 80%;
-  /* height: 60%; */
-  border: 1px solid red;
 }
 
 /**
