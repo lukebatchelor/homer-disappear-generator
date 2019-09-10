@@ -4,7 +4,9 @@ import gifExporter from './gif/gifExporter';
 export default class ExportingScreen extends React.Component {
   static defaultProps = {
     uploadedImg: null,
-    gifController: null
+    gifController: null,
+    imgXOffset: 0,
+    imgYOffset: 0
   };
 
   state = {
@@ -14,7 +16,7 @@ export default class ExportingScreen extends React.Component {
   };
 
   componentDidMount() {
-    const { uploadedImg, gifController } = this.props;
+    const { uploadedImg, gifController, imgXOffset, imgYOffset } = this.props;
     const numFrames = gifController.get_length();
     const gifCanvas = gifController.get_canvas();
     const gif = new gifExporter({
@@ -37,8 +39,10 @@ export default class ExportingScreen extends React.Component {
       ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
       gifController.move_to(i);
       ctx.drawImage(uploadedImg, 0, 0);
-      ctx.drawImage(gifCanvas, 0, 0);
-      gif.addFrameImageData(ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height));
+      ctx.drawImage(gifCanvas, imgXOffset, imgYOffset);
+      gif.addFrameImageData(
+        ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height)
+      );
     }
 
     gif.getBase64GIF(base64encodedImg => {
@@ -73,13 +77,19 @@ export default class ExportingScreen extends React.Component {
     const { base64encodedImg, imgSizeMb } = this.state;
     return (
       <div>
-        {!base64encodedImg && <p>Exporting: {this.state.completionPercentage}%</p>}
+        {!base64encodedImg && (
+          <p>Exporting: {this.state.completionPercentage}%</p>
+        )}
         {base64encodedImg && (
           <div>
             <p>Done!</p>
             <img src={base64encodedImg} alt="Disappearing Homer"></img>
             <p>Size: {imgSizeMb}Mb</p>
-            <button type="button" className="upload-button" onClick={this.onDownloadClicked}>
+            <button
+              type="button"
+              className="upload-button"
+              onClick={this.onDownloadClicked}
+            >
               Download!
             </button>
           </div>

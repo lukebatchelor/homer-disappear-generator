@@ -29,7 +29,9 @@ export default class App extends React.Component {
   state = {
     curScreen: 'UPLOAD',
     uploadedImg: null,
-    homerGifController: null
+    homerGifController: null,
+    imgXOffset: 0,
+    imgYOffset: 0
   };
 
   firstFrameFromGif = null;
@@ -60,12 +62,18 @@ export default class App extends React.Component {
     });
   }
 
-  onResizeReady = () => {
-    this.setState({ curScreen: 'EXPORTING' });
+  onResizeReady = ({ imgXOffset, imgYOffset }) => {
+    this.setState({ curScreen: 'EXPORTING', imgXOffset, imgYOffset });
   };
 
   render() {
-    const { curScreen, uploadedImg, homerGifController } = this.state;
+    const {
+      curScreen,
+      uploadedImg,
+      homerGifController,
+      imgXOffset,
+      imgYOffset
+    } = this.state;
     const { firstFrameFromGif } = this;
 
     return (
@@ -75,7 +83,9 @@ export default class App extends React.Component {
           <h1>Gif Generator</h1>
         </div>
         <div className="content">
-          {curScreen === 'UPLOAD' && <UploadScreen onImageUploaded={this.onImageUploaded} />}
+          {curScreen === 'UPLOAD' && (
+            <UploadScreen onImageUploaded={this.onImageUploaded} />
+          )}
           {curScreen === 'RESIZE' && (
             <ResizeScreen
               uploadedImg={uploadedImg}
@@ -84,7 +94,12 @@ export default class App extends React.Component {
             />
           )}
           {curScreen === 'EXPORTING' && (
-            <ExportingScreen uploadedImg={uploadedImg} gifController={homerGifController} />
+            <ExportingScreen
+              uploadedImg={uploadedImg}
+              gifController={homerGifController}
+              imgXOffset={imgXOffset}
+              imgYOffset={imgYOffset}
+            />
           )}
         </div>
       </div>
