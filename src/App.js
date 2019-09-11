@@ -5,7 +5,10 @@ import ResizeScreen from './ResizeScreen';
 import ExportingScreen from './ExportingScreen';
 import './App.css';
 
-const SKIP_UPLOAD_STEP = false;
+const urlParams = new URLSearchParams(window.location.search);
+const debugParam = urlParams.get('debug');
+
+const SKIP_UPLOAD_STEP = debugParam !== null;
 
 function loadGifFromUrl(url, callback) {
   var tempImage = document.createElement('img');

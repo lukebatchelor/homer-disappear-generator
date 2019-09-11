@@ -1,6 +1,9 @@
 import React from 'react';
 
-const MAX_IMAGE_DIMENSION = 500;
+const urlParams = new URLSearchParams(window.location.search);
+const maxSizeParam = urlParams.get('max');
+
+const MAX_IMAGE_DIMENSION = maxSizeParam ? parseInt(maxSizeParam) : 500;
 
 // We need to set a max size of the outputted image for a couple of reasons:
 // 1. It makes moving homer on the image super annoying because of the sheer
