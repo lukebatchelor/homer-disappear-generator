@@ -1,5 +1,6 @@
 import React from 'react';
 import gifExporter from './gif/gifExporter';
+import fileSaver from 'file-saver';
 
 export default class ExportingScreen extends React.Component {
   static defaultProps = {
@@ -70,18 +71,9 @@ export default class ExportingScreen extends React.Component {
 
   onDownloadClicked = () => {
     const { imgBlob } = this.state;
-    // to download, we'll create a fake anchor element and click it
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.href = window.URL.createObjectURL(imgBlob);
-    a.setAttribute('download', 'homer.gif');
-
-    a.click();
-
-    // make sure we clean up object urls (they're expensive)
-    window.URL.revokeObjectURL(a.href);
-    document.body.removeChild(a);
+    // Turns out saving files in a cross browser way is a PITA - fileSaver makes
+    // this so much easier <3
+    fileSaver.saveAs(imgBlob, 'homer.gif');
   };
 
   render() {
