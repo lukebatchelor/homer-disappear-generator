@@ -40,13 +40,6 @@ export default class App extends React.Component {
 
   firstFrameFromGif = null;
 
-  onImageUploaded = img => {
-    this.setState({
-      curScreen: 'RESIZE',
-      uploadedImg: img
-    });
-  };
-
   componentDidMount() {
     // Hack to hide mobile adress bars
     window.scrollTo(0, 1);
@@ -69,6 +62,13 @@ export default class App extends React.Component {
     });
   }
 
+  onImageUploaded = img => {
+    this.setState({
+      curScreen: 'RESIZE',
+      uploadedImg: img
+    });
+  };
+
   onResizeReady = ({ imgXOffset, imgYOffset, canvasWidth, canvasHeight, homerHeight, homerWidth }) => {
     this.setState({
       curScreen: 'EXPORTING',
@@ -79,6 +79,12 @@ export default class App extends React.Component {
       homerHeight,
       homerWidth
     });
+  };
+
+  onStartAgainClicked = () => {
+    const { homerGifController } = this.state;
+    homerGifController.move_to(0);
+    this.setState({ curScreen: 'UPLOAD', uploadedImg: null });
   };
 
   render() {
@@ -97,12 +103,6 @@ export default class App extends React.Component {
 
     return (
       <div className="app">
-        {curScreen === 'UPLOAD' && (
-          <div className="title">
-            <h1>Disappearing Homer</h1>
-            <h1>Gif Generator</h1>
-          </div>
-        )}
         <div className="content">
           {curScreen === 'UPLOAD' && <UploadScreen onImageUploaded={this.onImageUploaded} />}
           {curScreen === 'RESIZE' && (
@@ -122,6 +122,7 @@ export default class App extends React.Component {
               canvasHeight={canvasHeight}
               homerHeight={homerHeight}
               homerWidth={homerWidth}
+              onStartAgainClicked={this.onStartAgainClicked}
             />
           )}
         </div>

@@ -41,6 +41,10 @@
   user-select: none;
 }
 
+.upload-button + .upload-button {
+  margin-left: 10px;
+}
+
 .resizeCanvas {
   width: 80%;
 }

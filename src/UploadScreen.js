@@ -37,6 +37,10 @@ export default class UploadScreen extends React.Component {
   render() {
     return (
       <div>
+        <div className="title">
+          <h1>Disappearing Homer</h1>
+          <h1>Gif Generator</h1>
+        </div>
         <p>Create a gif of Homer disappearing into things... Because why not?</p>
         <img src="/homer-crop.gif" alt="Homer disappearing" style={{ maxHeight: '40vh' }}></img>
         <p>Upload a background image to begin!</p>

@@ -4,6 +4,7 @@ import fileSaver from 'file-saver';
 
 export default class ExportingScreen extends React.Component {
   static defaultProps = {
+    onStartAgainClicked: () => {},
     uploadedImg: null,
     gifController: null,
     imgXOffset: 0,
@@ -88,6 +89,9 @@ export default class ExportingScreen extends React.Component {
             <p>Size: {imgSizeMb}Mb</p>
             <button type="button" className="upload-button" onClick={this.onDownloadClicked}>
               Download!
+            </button>
+            <button type="button" className="upload-button" onClick={this.props.onStartAgainClicked}>
+              Start Again
             </button>
           </div>
         )}
